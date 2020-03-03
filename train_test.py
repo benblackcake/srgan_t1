@@ -124,9 +124,9 @@ def main():
                 val_batch_iter = iter(get_val_batch)
                 eval_batch_iter = iter(get_eval_batch)
                 
-            print("__length_train_files__: %s"%len(train_filenames))
-            print("__length_val_filenames__: %s"%len(val_filenames))
-            print("__length_eval_filenames__: %s"%len(eval_filenames))
+            # print("__length_train_files__: %s"%len(train_filenames))
+            # print("__length_val_filenames__: %s"%len(val_filenames))
+            # print("__length_eval_filenames__: %s"%len(eval_filenames))
             
             print("training__iter__times: %s"%iteration)
             
@@ -159,8 +159,6 @@ def main():
             # Train generator
         
             batch_hr = next(train_batch_iter)
-            #print(batch_hr)
-            #checkimage(batch_hr[0])
             batch_lr = downsample_batch(batch_hr, factor=4)
             batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
 
