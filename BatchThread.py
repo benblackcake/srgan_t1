@@ -32,7 +32,7 @@ class ThreadedGenerator(object):
                  Thread=threading.Thread,
                  Queue=Queue):
         self.iterator_train = iterator_train
-        # self.iterator_label = iterator_label
+        self.random_crop = random_crop
         self.batch_size = batch_size
         self._queue = Queue(maxsize=queue_maxsize)
         #self._thread = mp.Process(target=self._run)
