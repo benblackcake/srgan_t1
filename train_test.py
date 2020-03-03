@@ -133,10 +133,12 @@ def main():
             
             if iteration % args.log_freq == 0:
                 # Test every log-freq iterations
-                for val_batch in ThreadedGenerator(val_filenames ,args.batch_size):
+                val_batch_iter = ThreadedGenerator(val_filenames ,args.batch_size)
+                for val_batch in val_batch_iter:
                     val_error = evaluate_model(g_loss, val_batch, sess, 119, args.batch_size)
-                
-                for eval_batch in ThreadedGenerator(eval_filenames ,args.batch_size):
+                    
+                eval_batch_iter = ThreadedGenerator(eval_filenames ,args.batch_size)
+                for eval_batch in eval_batch_iter:
                     eval_error = evaluate_model(g_loss, eval_batch, sess, 119, args.batch_size)
                 # Log error
                 print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
@@ -155,14 +157,16 @@ def main():
 
             #Train discriminator
             if args.use_gan:
-                for batch_hr in ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True):
+                train_batch_iter = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+                for batch_hr in train_batch_iter:
                     #batch_hr = next(train_batch_iter)
                     batch_lr = downsample_batch(batch_hr, factor=4)
                     batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
                     sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
                                                       d_x_real: batch_hr})
             # Train generator
-            for batch_hr in ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True):
+            train_batch_iter = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+            for batch_hr in train_batch_iter:
                 #batch_hr = next(train_batch_iter)
                 batch_lr = downsample_batch(batch_hr, factor=4)
                 batch_lr, batch_hr = preprocess(batch_lr, batch_hr)

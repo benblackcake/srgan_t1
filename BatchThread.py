@@ -109,8 +109,8 @@ class ThreadedGenerator(object):
         self._thread.setDaemon(True)
         self._thread.start()
         # load the batch generator as a python generator
-        print(threading.get_ident())
-        print(self._thread.ident)
+        # print(threading.get_ident())
+        # print(self._thread.ident)
 
         #print("_iter_")
         # self._queue.close()
