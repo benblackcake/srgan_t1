@@ -161,7 +161,7 @@ def main():
             batch_hr = next(train_batch_iter)
             batch_lr = downsample_batch(batch_hr, factor=4)
             batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-
+            print("__queue__size__:%d "%(get_train_batch._queue.qsize()))
             sess.run(g_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
             
 
