@@ -27,9 +27,8 @@ class ThreadedGenerator(object):
     def __init__(self, iterator_train,
                  # iterator_label,
                  batch_size,
-                 sentinel=object(),
                  queue_maxsize=128,
-                 daemon=False,
+                 random_crop=False,
                  Thread=threading.Thread,
                  Queue=Queue):
         self.iterator_train = iterator_train
@@ -82,7 +81,7 @@ class ThreadedGenerator(object):
             X_batch = self.iterator_train[batch:batch + self.batch_size]
             for data in X_batch:
                 try:
-                    img = process_sub_image(data,random_crop=True)
+                    img = process_sub_image(data,random_crop)
                     #checkimage(img)
                     tmp_.append(img)
                     #print(tmp_)
