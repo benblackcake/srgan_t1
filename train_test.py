@@ -20,7 +20,7 @@ def main():
     parser.add_argument('--load-gen', type=str, help='Checkpoint to load generator weights only from.')
     parser.add_argument('--name', type=str, help='Name of experiment.')
     parser.add_argument('--overfit', action='store_true', help='Overfit to a single image.')
-    parser.add_argument('--batch-size', type=int, default=160, help='Mini-batch size.')
+    parser.add_argument('--batch-size', type=int, default=16, help='Mini-batch size.')
     parser.add_argument('--log-freq', type=int, default=10000,
                         help='How many training iterations between validation/checkpoints.')
     parser.add_argument('--learning-rate', type=float, default=1e-4, help='Learning rate for Adam.')
@@ -105,8 +105,8 @@ def main():
         # Train
         train_filenames, val_filenames, eval_filenames = get_files_list(args)
         get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-        get_val_batch = ThreadedGenerator(val_filenames ,16)
-        get_eval_batch = ThreadedGenerator(eval_filenames ,16)
+        get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
+        get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
         
         train_batch_iter = iter(get_train_batch)
         val_batch_iter = iter(get_val_batch)
@@ -117,8 +117,8 @@ def main():
             batch_idx = len(train_filenames)//args.batch_size
             if iteration % batch_idx==0:
                 get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-                get_val_filenames = ThreadedGenerator(val_filenames ,16)
-                get_eval_filenames = ThreadedGenerator(eval_filenames ,16)
+                get_val_filenames = ThreadedGenerator(val_filenames ,args.batch_size)
+                get_eval_filenames = ThreadedGenerator(eval_filenames ,args.batch_size)
                 
                 train_batch_iter = iter(get_train_batch)
                 val_batch_iter = iter(get_val_batch)
@@ -132,8 +132,8 @@ def main():
             
             if iteration % args.log_freq == 0:
                 # Test every log-freq iterations
-                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, 16)
-                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, 16)
+                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
+                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
                 # Log error
                 print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                 # Evaluate benchmarks
