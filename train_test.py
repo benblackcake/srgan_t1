@@ -105,8 +105,8 @@ def main():
         # Train
         train_filenames, val_filenames, eval_filenames = get_files_list(args)
         get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-        get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
-        get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
+        get_val_batch = ThreadedGenerator(val_filenames ,16)
+        get_eval_batch = ThreadedGenerator(eval_filenames ,16)
         
         train_batch_iter = iter(get_train_batch)
         val_batch_iter = iter(get_val_batch)
