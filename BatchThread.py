@@ -27,7 +27,7 @@ class ThreadedGenerator(object):
     def __init__(self, iterator_train,
                  # iterator_label,
                  batch_size,
-                 queue_maxsize=128,
+                 queue_maxsize=1000,
                  random_crop=False,
                  Thread=threading.Thread,
                  Queue=Queue):
