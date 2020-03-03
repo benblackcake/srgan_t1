@@ -117,8 +117,8 @@ def main():
             batch_idx = len(train_filenames)//args.batch_size
             if iteration % batch_idx==0:
                 get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-                get_val_filenames = ThreadedGenerator(val_filenames ,args.batch_size)
-                get_eval_filenames = ThreadedGenerator(eval_filenames ,args.batch_size)
+                get_val_filenames = ThreadedGenerator(val_filenames ,16)
+                get_eval_filenames = ThreadedGenerator(eval_filenames ,16)
                 
                 train_batch_iter = iter(get_train_batch)
                 val_batch_iter = iter(get_val_batch)
@@ -132,8 +132,8 @@ def main():
             
             if iteration % args.log_freq == 0:
                 # Test every log-freq iterations
-                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
-                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
+                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, 16)
+                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, 16)
                 # Log error
                 print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                 # Evaluate benchmarks
