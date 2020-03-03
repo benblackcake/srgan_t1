@@ -104,25 +104,25 @@ def main():
 
         # Train
         train_filenames, val_filenames, eval_filenames = get_files_list(args)
-        get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
-        get_val_filenames = ThreadedGenerator(val_filenames ,16)
-        get_eval_filenames = ThreadedGenerator(eval_filenames ,16)
+        get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+        get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
+        get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
         
         train_batch_iter = iter(get_train_batch)
-        val_batch_iter = iter(ThreadedGenerator(get_val_filenames ,16))
-        eval_batch_iter = iter(ThreadedGenerator(get_eval_filenames ,16))
+        val_batch_iter = iter(get_val_batch)
+        eval_batch_iter = iter(get_eval_batch)
         
         while True:
         
             batch_idx = len(train_filenames)//args.batch_size
             if iteration % batch_idx==0:
-                get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
-                get_val_filenames = ThreadedGenerator(val_filenames ,16)
-                get_eval_filenames = ThreadedGenerator(eval_filenames ,16)
+                get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+                get_val_filenames = ThreadedGenerator(val_filenames ,args.batch_size)
+                get_eval_filenames = ThreadedGenerator(eval_filenames ,args.batch_size)
                 
                 train_batch_iter = iter(get_train_batch)
-                val_batch_iter = iter(get_val_filenames)
-                eval_batch_iter = iter(get_eval_filenames)
+                val_batch_iter = iter(get_val_batch)
+                eval_batch_iter = iter(get_eval_batch)
                 
             print("__length_train_files__: %s"%len(train_filenames))
             print("__length_val_filenames__: %s"%len(val_filenames))
