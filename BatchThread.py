@@ -80,7 +80,7 @@ class ThreadedGenerator(object):
             X_batch = self.iterator_train[batch:batch + self.batch_size]
             for data in X_batch:
                 try:
-                    img = process_sub_image(data,random_crop)
+                    img = process_sub_image(data,random_crop = self.random_crop)
                     #checkimage(img)
                     tmp_.append(img)
                     #print(tmp_)
