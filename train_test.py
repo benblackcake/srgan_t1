@@ -118,8 +118,8 @@ def main():
             if iteration % batch_idx==0:
                 print("__denug__enter_if__: %s"%iteration)
                 get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-                get_val_filenames = ThreadedGenerator(val_filenames ,args.batch_size)
-                get_eval_filenames = ThreadedGenerator(eval_filenames ,args.batch_size)
+                get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
+                get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
                 
                 train_batch_iter = iter(get_train_batch)
                 val_batch_iter = iter(get_val_batch)
