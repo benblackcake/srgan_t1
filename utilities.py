@@ -76,6 +76,7 @@ def downsample(image, factor):
 
 
 def downsample_batch(batch, factor):
+    print("__down_sample_shape__: %s "%sbatch.shape)
     downsampled = np.zeros((batch.shape[0], batch.shape[1] // factor, batch.shape[2] // factor, 3))
     for i in range(batch.shape[0]):
         downsampled[i, :, :, :] = downsample(batch[i, :, :, :], factor)
