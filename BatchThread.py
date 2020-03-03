@@ -54,8 +54,8 @@ class ThreadedGenerator(object):
             batch_gen = self._gen_batches()
             # loop over generator and put each batch into the queue
             #print("__batch_gen_shape__%s"%batch_gen.shape)\
-            print("__batch_gen")
-            print(batch_gen)
+            #print("__batch_gen")
+            #print(batch_gen)
             for data in batch_gen:
                 
                 self._queue.put(data, block=True)
@@ -86,18 +86,18 @@ class ThreadedGenerator(object):
                     #print(tmp_)
                 except:
                     e_i+=1
-                    print("__except__time:%d data:%s"%(e_i,data))
+                    #print("__except__time:%d data:%s"%(e_i,data))
                     continue
                 #print(img.shape)
             # y_batch = self.iterator_label[batch:batch + self.batch_size]
             i+=1
-            print("__iter__data__batchs: %s"%i)
+            #print("__iter__data__batchs: %s"%i)
             self.__iter_time += 1
             # do some stuff to the batches like augment images or load from folders
             
-            print("__except__time:%d"%(e_i))
+            #print("__except__time:%d"%(e_i))
             tmp_ = np.asarray(tmp_)
-            print(tmp_.shape)
+            #print(tmp_.shape)
             yield [tmp_]
     
     def get_iter_time(self):
@@ -112,13 +112,13 @@ class ThreadedGenerator(object):
         print(threading.get_ident())
         print(self._thread.ident)
 
-        print("_iter_")
+        #print("_iter_")
         # self._queue.close()
         for value in iter(self._queue.get, None):
             
             c += 1
-            print("__DEBUG__iter__%s" % c)
-            print("pading.......")
+            #print("__DEBUG__iter__%s" % c)
+            #print("pading.......")
             yield value[0]
 
         self._thread.join()
