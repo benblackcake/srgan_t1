@@ -20,8 +20,8 @@ def main():
     parser.add_argument('--load-gen', type=str, help='Checkpoint to load generator weights only from.')
     parser.add_argument('--name', type=str, help='Name of experiment.')
     parser.add_argument('--overfit', action='store_true', help='Overfit to a single image.')
-    parser.add_argument('--batch-size', type=int, default=160, help='Mini-batch size.')
-    parser.add_argument('--log-freq', type=int, default=10000,
+    parser.add_argument('--batch-size', type=int, default=16, help='Mini-batch size.')
+    parser.add_argument('--log-freq', type=int, default=1000,
                         help='How many training iterations between validation/checkpoints.')
     parser.add_argument('--learning-rate', type=float, default=1e-4, help='Learning rate for Adam.')
     parser.add_argument('--content-loss', type=str, default='mse', choices=['mse', 'vgg22', 'vgg54'],
@@ -114,26 +114,32 @@ def main():
         
         while True:
         
-            batch_idx = len(train_filenames)//args.batch_size
-            if iteration % batch_idx==0:
-                get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
-                get_val_batch = ThreadedGenerator(val_filenames ,16)
-                get_eval_batch = ThreadedGenerator(eval_filenames ,16)
+            # batch_idx = len(train_filenames)//args.batch_size
+            # if iteration % batch_idx==0:
+                # print("__denug__enter_if__: %s"%iteration)
+                # get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+                # get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
+                # get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
                 
-                train_batch_iter = iter(get_train_batch)
-                val_batch_iter = iter(get_val_batch)
-                eval_batch_iter = iter(get_eval_batch)
+                # train_batch_iter = iter(get_train_batch)
+                # val_batch_iter = iter(get_val_batch)
+                # eval_batch_iter = iter(get_eval_batch)
                 
-            print("__length_train_files__: %s"%len(train_filenames))
-            print("__length_val_filenames__: %s"%len(val_filenames))
-            print("__length_eval_filenames__: %s"%len(eval_filenames))
+            # print("__length_train_files__: %s"%len(train_filenames))
+            # print("__length_val_filenames__: %s"%len(val_filenames))
+            # print("__length_eval_filenames__: %s"%len(eval_filenames))
             
             print("training__iter__times: %s"%iteration)
             
             if iteration % args.log_freq == 0:
                 # Test every log-freq iterations
-                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
-                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
+                val_batch_iter = ThreadedGenerator(val_filenames ,args.batch_size)
+                for val_batch in val_batch_iter:
+                    val_error = evaluate_model(g_loss, val_batch, sess, 119, args.batch_size)
+                    
+                eval_batch_iter = ThreadedGenerator(eval_filenames ,args.batch_size)
+                for eval_batch in eval_batch_iter:
+                    eval_error = evaluate_model(g_loss, eval_batch, sess, 119, args.batch_size)
                 # Log error
                 print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                 # Evaluate benchmarks
@@ -150,21 +156,23 @@ def main():
                 saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
 
             #Train discriminator
-            if args.use_gan:    
-                batch_hr = next(train_batch_iter)
+            if args.use_gan:
+                train_batch_iter = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+                for batch_hr in train_batch_iter:
+                    #batch_hr = next(train_batch_iter)
+                    batch_lr = downsample_batch(batch_hr, factor=4)
+                    batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
+                    sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
+                                                      d_x_real: batch_hr})
+            # Train generator
+            train_batch_iter = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+            for batch_hr in train_batch_iter:
+                #batch_hr = next(train_batch_iter)
                 batch_lr = downsample_batch(batch_hr, factor=4)
                 batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-                sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
-                                                  d_x_real: batch_hr})
-            # Train generator
-        
-            batch_hr = next(train_batch_iter)
-            print(batch_hr)
-            batch_lr = downsample_batch(batch_hr, factor=4)
-            batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-
-            sess.run(g_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
-            
+                #print("__queue__size__:%d "%(get_train_batch._queue.qsize()))
+                sess.run(g_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
+                
 
             iteration += 1
 
