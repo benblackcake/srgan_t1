@@ -34,7 +34,6 @@ class ThreadedGenerator(object):
         self.iterator_train = iterator_train
         # self.iterator_label = iterator_label
         self.batch_size = batch_size
-        self._sentinel = sentinel
         self._queue = Queue(maxsize=queue_maxsize)
         #self._thread = mp.Process(target=self._run)
         self._thread = Thread(
