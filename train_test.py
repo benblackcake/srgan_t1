@@ -160,7 +160,7 @@ def main():
         
             batch_hr = next(train_batch_iter)
             print(batch_hr)
-            checkimage(batch_hr[0])
+            #checkimage(batch_hr[0])
             batch_lr = downsample_batch(batch_hr, factor=4)
             batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
 
