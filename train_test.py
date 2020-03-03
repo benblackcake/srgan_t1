@@ -11,7 +11,7 @@ from benchmark import Benchmark
 import os
 import sys
 from utilities import input_setup, downsample_batch, build_log_dir, preprocess, evaluate_model
-from utils import get_files_list
+from utils import get_files_list, checkimage
 from BatchThread import ThreadedGenerator
 
 def main():
@@ -160,6 +160,7 @@ def main():
         
             batch_hr = next(train_batch_iter)
             print(batch_hr)
+            checkimage(batch_hr[0])
             batch_lr = downsample_batch(batch_hr, factor=4)
             batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
 
