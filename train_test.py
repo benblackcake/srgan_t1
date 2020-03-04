@@ -85,6 +85,8 @@ def main():
 
         # Load saved weights
         iteration = 0
+        iteration_val = 0
+
         saver = tf.train.Saver()
         # Load generator
         if args.load_gen:
@@ -111,18 +113,17 @@ def main():
         train_batch_iter = iter(get_train_batch)
         val_batch_iter = iter(get_val_batch)
         eval_batch_iter = iter(get_eval_batch)
-        
+
+        batch_idx = len(train_filenames) // args.batch_size
+
         while True:
         
-            batch_idx = len(train_filenames)//args.batch_size
-            if iteration % batch_idx==0:
+            if iteration % batch_idx == 0:
                 get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
-                get_val_batch = ThreadedGenerator(val_filenames ,16)
-                get_eval_batch = ThreadedGenerator(eval_filenames ,16)
+
                 
                 train_batch_iter = iter(get_train_batch)
-                val_batch_iter = iter(get_val_batch)
-                eval_batch_iter = iter(get_eval_batch)
+
                 
             # print("__length_train_files__: %s"%len(train_filenames))
             # print("__length_val_filenames__: %s"%len(val_filenames))
@@ -131,6 +132,13 @@ def main():
             print("training__iter__times: %s"%iteration)
             
             if iteration % args.log_freq == 0:
+
+                if iteration_val % batch_idx ==0:
+                    get_val_batch = ThreadedGenerator(val_filenames, 16)
+                    get_eval_batch = ThreadedGenerator(eval_filenames, 16)
+                    val_batch_iter = iter(get_val_batch)
+                    eval_batch_iter = iter(get_eval_batch)
+
                 # Test every log-freq iterations
                 val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
                 eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
@@ -148,7 +156,8 @@ def main():
                     f.write('%d, %.15f, %.15f%s\n' % (iteration, val_error, eval_error, log_line))
                 # Save checkpoint
                 saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
-
+                iteration_val += 1
+                
             #Train discriminator
             if args.use_gan:    
                 batch_hr = next(train_batch_iter)
@@ -157,7 +166,6 @@ def main():
                 sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
                                                   d_x_real: batch_hr})
             # Train generator
-        
             batch_hr = next(train_batch_iter)
             batch_lr = downsample_batch(batch_hr, factor=4)
             batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
