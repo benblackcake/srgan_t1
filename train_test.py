@@ -115,7 +115,7 @@ def main():
         eval_batch_iter = iter(get_eval_batch)
 
         batch_idx = len(train_filenames) // args.batch_size
-        batch_val_batch_iter_idx = len(val_batch_iter) // args.batch_size
+        batch_val_batch_iter_idx = len(get_val_batch) // args.batch_size
 
 
 
