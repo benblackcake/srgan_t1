@@ -116,8 +116,12 @@ def main():
 
         batch_idx = len(train_filenames) // args.batch_size
         batch_val_batch_iter_idx = len(val_batch_iter) // args.batch_size
+
+
+
         while True:
-        
+            print("batch_idx: %s" % batch_idx)
+            print("batch_val_batch_iter_idx: %s" % batch_idx)
             if iteration % batch_idx == 0:
                 get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
 
