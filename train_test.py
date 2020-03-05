@@ -138,7 +138,7 @@ def main():
                     get_eval_batch = ThreadedGenerator(eval_filenames, 16)
                     val_batch_iter = iter(get_val_batch)
                     eval_batch_iter = iter(get_eval_batch)
-
+                print("iteration_val: %s" % iteration_val)
                 # Test every log-freq iterations
                 val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
                 eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
