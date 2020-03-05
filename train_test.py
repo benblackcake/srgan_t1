@@ -123,9 +123,8 @@ def main():
             print("batch_idx: %s" % batch_idx)
             print("batch_val_batch_iter_idx: %s" % batch_val_batch_iter_idx)
             if iteration % batch_idx == 0:
+                print(".................................get new inter...............................")
                 get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
-
-                
                 train_batch_iter = iter(get_train_batch)
 
                 
