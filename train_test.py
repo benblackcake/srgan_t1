@@ -125,7 +125,7 @@ def main():
                 train_batch_iter = iter(get_train_batch)
 
                 
-            # print("__length_train_files__: %s"%len(train_filenames))
+            print("__length_train_files__: %s"%len(train_filenames))
             # print("__length_val_filenames__: %s"%len(val_filenames))
             # print("__length_eval_filenames__: %s"%len(eval_filenames))
             
