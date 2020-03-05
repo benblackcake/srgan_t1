@@ -123,8 +123,8 @@ def main():
             print("batch_idx: %s" % batch_idx)
             print("batch_val_batch_iter_idx: %s" % batch_val_batch_iter_idx)
             if iteration % batch_idx == 0:
-                print(".................................get new inter...............................")
-                get_train_batch = ThreadedGenerator(train_filenames ,16,random_crop=True)
+                print(".................................get new train_batch inter...............................")
+                get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
                 train_batch_iter = iter(get_train_batch)
 
                 
@@ -137,8 +137,9 @@ def main():
             if iteration % args.log_freq == 0:
 
                 if iteration_val % batch_val_batch_iter_idx == 0:
-                    get_val_batch = ThreadedGenerator(val_filenames, 16)
-                    get_eval_batch = ThreadedGenerator(eval_filenames, 16)
+                    print(".................................get new val_batch inter...............................")
+                    get_val_batch = ThreadedGenerator(val_filenames, args.batch_size)
+                    get_eval_batch = ThreadedGenerator(eval_filenames, args.batch_size)
                     val_batch_iter = iter(get_val_batch)
                     eval_batch_iter = iter(get_eval_batch)
                 print("iteration_val: %s" % iteration_val)
