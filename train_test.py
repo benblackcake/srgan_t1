@@ -115,7 +115,7 @@ def main():
         eval_batch_iter = iter(get_eval_batch)
 
         batch_idx = len(train_filenames) // args.batch_size
-
+        batch_val_batch_iter_idx = len(val_batch_iter) // args.batch_size
         while True:
         
             if iteration % batch_idx == 0:
@@ -133,7 +133,7 @@ def main():
             
             if iteration % args.log_freq == 0:
 
-                if iteration_val % batch_idx ==0:
+                if iteration_val % batch_val_batch_iter_idx == 0:
                     get_val_batch = ThreadedGenerator(val_filenames, 16)
                     get_eval_batch = ThreadedGenerator(eval_filenames, 16)
                     val_batch_iter = iter(get_val_batch)
