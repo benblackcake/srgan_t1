@@ -1,19 +1,9 @@
 import cv2
-import numpy as np
-import tensorflow as tf
 import os 
 import glob
-import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import queue
-
-
-__DEBUG__ = False
-__DEBUG__SHOW__IMAGE = False
-__DEBUG__SHOW_CV = False
-__DEBUG__imagePath = "./__DEBUG__"
 
 # Get the Image
 def imread(path):
@@ -73,24 +63,23 @@ def crop_center(img,cropx,cropy):
     return img[starty:starty+cropy,startx:startx+cropx]
 
 def process_sub_image(file_name, img_size=96, random_crop=False):
-    li = []
     img = imread(file_name)
     h,w,_ = img.shape
     if h < img_size or w < img_size: 
         raise
     if random_crop:
         return randomCrop(img,img_size,img_size)
-            #print(li)
+
     else:
         return crop_center(img,img_size,img_size)
-    #print(li.shape)
-    #t1 = ThreadedGenerator(li, 16)
 
+def fft_batch(batch_img):
+    pass
 
 
 def get_files_list(args):
     """
-        Read image make sub-images -> saved as a h5 file format
+    return file list
     """
 
     train_filenames = np.array(glob.glob(os.path.join(args.train_dir, '**', '*.*'), recursive=True))

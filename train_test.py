@@ -157,7 +157,7 @@ def main():
                 # Save checkpoint
                 saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
                 iteration_val += 1
-                
+
             #Train discriminator
             if args.use_gan:    
                 batch_hr = next(train_batch_iter)
