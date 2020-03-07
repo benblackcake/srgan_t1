@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import h5py
 
 # Get the Image
 def imread(path):
@@ -76,7 +77,12 @@ def process_sub_image(file_name, img_size=96, random_crop=False):
 def fft_batch(batch_img):
     pass
 
-
+def get_data_set(path,label):
+    f = h5py.File(path, 'r')
+    data = f[label]
+    return data
+    
+    
 def get_files_list(args):
     """
     return file list

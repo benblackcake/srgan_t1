@@ -11,7 +11,7 @@ from benchmark import Benchmark
 import os
 import sys
 from utilities import input_setup, downsample_batch, build_log_dir, preprocess, evaluate_model
-from utils import get_files_list, checkimage
+from utils import get_data_set
 from BatchThread import ThreadedGenerator
 
 def main():
@@ -36,6 +36,7 @@ def main():
                         help='If set, validates that the benchmarking metrics are correct for the images provided by the authors of the SRGAN paper.')
     parser.add_argument('--gpu', type=str, default='0', help='Which GPU to use')
     parser.add_argument('--epoch', type=int, default='1000000', help='How many iterations ')
+    
 
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -73,6 +74,12 @@ def main():
     else:
         log_path = build_log_dir(args, sys.argv)
 
+
+    #Set up h5 dataset path
+    train_data_path = 'done_dataset\PreprocessedData.h5'
+    val_data_path = 'done_dataset\PreprocessedData_val.h5'
+    eval_data_path = 'done_dataset\PreprocessedData_eval.h5'
+    
     with tf.Session() as sess:
         # Build input pipeline
 
@@ -105,79 +112,67 @@ def main():
             vgg_saver.restore(sess, args.vgg_weights)
 
         # Train
-        train_filenames, val_filenames, eval_filenames = get_files_list(args)
-        get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-        get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
-        get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
+        # train_filenames, val_filenames, eval_filenames = get_files_list(args)
+        # get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
+        # get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
+        # get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
         
-        train_batch_iter = iter(get_train_batch)
-        val_batch_iter = iter(get_val_batch)
-        eval_batch_iter = iter(get_eval_batch)
+        # train_batch_iter = iter(get_train_batch)
+        # val_batch_iter = iter(get_val_batch)
+        # eval_batch_iter = iter(get_eval_batch)
 
-        batch_idx = len(train_filenames) // args.batch_size
-        batch_val_batch_iter_idx = len(val_filenames) // args.batch_size
+        # batch_idx = len(train_filenames) // args.batch_size
+        # batch_val_batch_iter_idx = len(val_filenames) // args.batch_size
 
-
-
+        
+        
+        train_data_set = get_data_set(train_data_path,'train')
+        val_data_set = get_data_set(val_data_path,'val')
+        eval_data_set = get_data_set(eval_data_path,'eval')
+        
+        
         while True:
-            print("batch_idx: %s" % batch_idx)
-            print("batch_val_batch_iter_idx: %s" % batch_val_batch_iter_idx)
-            if iteration % batch_idx == 0:
-                print(".................................get new train_batch inter...............................")
-                get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-                train_batch_iter = iter(get_train_batch)
 
+            #One epoch 
+            for batch_idx in range(0, len(train_data_set) - args.batch_size + 1, args.batch_size):
                 
-            print("__length_train_files__: %s"%len(train_filenames))
-            # print("__length_val_filenames__: %s"%len(val_filenames))
-            # print("__length_eval_filenames__: %s"%len(eval_filenames))
-            
-            print("training__iter__times: %s"%iteration)
-            
-            if iteration % args.log_freq == 0:
+                if iteration % args.log_freq == 0:
 
-                if iteration_val % batch_val_batch_iter_idx == 0:
-                    print(".................................get new val_batch inter...............................")
-                    get_val_batch = ThreadedGenerator(val_filenames, args.batch_size)
-                    get_eval_batch = ThreadedGenerator(eval_filenames, args.batch_size)
-                    val_batch_iter = iter(get_val_batch)
-                    eval_batch_iter = iter(get_eval_batch)
-                print("iteration_val: %s" % iteration_val)
-                # Test every log-freq iterations
-                val_error = evaluate_model(g_loss, next(val_batch_iter), sess, 119, args.batch_size)
-                eval_error = evaluate_model(g_loss, next(eval_batch_iter), sess, 119, args.batch_size)
-                # Log error
-                print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
-                # Evaluate benchmarks
-                log_line = ''
-                for benchmark in benchmarks:
-                    psnr, ssim, _, _ = benchmark.evaluate(sess, g_y_pred, log_path, iteration)
-                    print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
-                    log_line += ',%.7f, %.7f' % (psnr, ssim)
-                print()
-                # Write to log
-                with open(log_path + '/loss.csv', 'a') as f:
-                    f.write('%d, %.15f, %.15f%s\n' % (iteration, val_error, eval_error, log_line))
-                # Save checkpoint
-                saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
-                iteration_val += 1
-
-            #Train discriminator
-            if args.use_gan:    
-                batch_hr = next(train_batch_iter)
+                    for batch_idx in range(0, len(val_data_set) - args.batch_size + 1, args.batch_size): 
+                    # Test every log-freq iterations
+                        val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
+                        eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
+                    # Log error
+                    print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
+                    # Evaluate benchmarks
+                    log_line = ''
+                    for benchmark in benchmarks:
+                        psnr, ssim, _, _ = benchmark.evaluate(sess, g_y_pred, log_path, iteration)
+                        print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
+                        log_line += ',%.7f, %.7f' % (psnr, ssim)
+                    print()
+                    # Write to log
+                    with open(log_path + '/loss.csv', 'a') as f:
+                        f.write('%d, %.15f, %.15f%s\n' % (iteration, val_error, eval_error, log_line))
+                    # Save checkpoint
+                    saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
+                
+                # Train generator    
+                batch_hr = train_data_set[batch_idx:batch_idx + 16]
                 batch_lr = downsample_batch(batch_hr, factor=4)
                 batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-                sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
+                sess.run(g_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
+                
+                #Train discriminator
+                if args.use_gan:
+                    batch_hr = train_data_set[batch_idx:batch_idx + 16]
+                    batch_lr = downsample_batch(batch_hr, factor=4)
+                    batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
+                    sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
                                                   d_x_real: batch_hr})
-            # Train generator
-            batch_hr = next(train_batch_iter)
-            batch_lr = downsample_batch(batch_hr, factor=4)
-            batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-
-            sess.run(g_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
-            
-
-            iteration += 1
+                
+                print('__training__ %s' % iteration)
+                iteration += 1
 
         # Stop queue threads
         # coord.request_stop()
