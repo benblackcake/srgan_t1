@@ -117,14 +117,14 @@ def main():
         epoch = 0
         
         while True:
-            t =trange((0, len(train_data_set) - args.batch_size + 1, args.batch_size), desc='Iterations')
+            t =trange(0, len(train_data_set) - args.batch_size + 1, args.batch_size, desc='Iterations')
             #One epoch 
             for batch_idx in t:
-                #tqdm.write("Iteration %s"%iteration)
-                t.set_description("Bar desc (file %i)" % iteration)
-
+                t.set_description("Training... (Iterations: %i)" % iteration)
+                
+                #Each 10000 times evaluate model
                 if iteration % args.log_freq == 0:
-
+                    #Loop over eval dataset
                     for batch_idx in range(0, len(val_data_set) - args.batch_size + 1, args.batch_size): 
                     # Test every log-freq iterations
                         val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
