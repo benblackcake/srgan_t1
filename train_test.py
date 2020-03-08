@@ -83,56 +83,39 @@ def main():
     eval_data_path = 'done_dataset\PreprocessedData_eval.h5'
     
     with tf.Session() as sess:
-        # Build input pipeline
 
         # Initialize
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
-        # Start input pipeline thread(s)
-        # coord = tf.train.Coordinator()
-        # threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
+        
         # Load saved weights
-        iteration = 0
-        iteration_val = 0
-
         saver = tf.train.Saver()
         # Load generator
         if args.load_gen:
             gen_saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='generator'))
             iteration = int(args.load_gen.split('-')[-1])
             gen_saver.restore(sess, args.load_gen)
+        
         # Load all
         if args.load:
             iteration = int(args.load.split('-')[-1])
             saver.restore(sess, args.load)
             print(saver)
             print("load_process_DEBUG")
+        
         # Load VGG
         if 'vgg' in args.content_loss:
             vgg_saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='vgg_19'))
             vgg_saver.restore(sess, args.vgg_weights)
-
-        # Train
-        # train_filenames, val_filenames, eval_filenames = get_files_list(args)
-        # get_train_batch = ThreadedGenerator(train_filenames ,args.batch_size,random_crop=True)
-        # get_val_batch = ThreadedGenerator(val_filenames ,args.batch_size)
-        # get_eval_batch = ThreadedGenerator(eval_filenames ,args.batch_size)
         
-        # train_batch_iter = iter(get_train_batch)
-        # val_batch_iter = iter(get_val_batch)
-        # eval_batch_iter = iter(get_eval_batch)
-
-        # batch_idx = len(train_filenames) // args.batch_size
-        # batch_val_batch_iter_idx = len(val_filenames) // args.batch_size
-
-        
-        
+        #Load .h5 file dataset
         train_data_set = get_data_set(train_data_path,'train')
         val_data_set = get_data_set(val_data_path,'val')
         eval_data_set = get_data_set(eval_data_path,'eval')
         
+        iteration = 0
         epoch = 0
+        
         while True:
 
             #One epoch 
@@ -179,10 +162,6 @@ def main():
                 iteration += 1
             print('__epoch__: %s' % epoch)
             epoch += 1
-        # Stop queue threads
-        # coord.request_stop()
-        # coord.join(threads)
-
 
 if __name__ == "__main__":
     main()

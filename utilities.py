@@ -98,8 +98,9 @@ def build_log_dir(args, arguments):
             'iteration, val_error, eval_error, set5_psnr, set5_ssim, set14_psnr, set14_ssim, bsd100_psnr, bsd100_ssim\n')
     # Copy this code to folder
     shutil.copy2('srgan.py', os.path.join(log_path, 'srgan.py'))
-    shutil.copy2('train.py', os.path.join(log_path, 'train.py'))
+    shutil.copy2('train_test.py', os.path.join(log_path, 'train_test.py'))
     shutil.copy2('utilities.py', os.path.join(log_path, 'utilities.py'))
+    shutil.copy2('utils.py', os.path.join(log_path, 'utils.py'))
     # Write command line arguments to file
     with open(log_path + '/args.txt', 'w+') as f:
         f.write(' '.join(arguments))
