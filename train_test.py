@@ -13,6 +13,8 @@ import sys
 from utilities import input_setup, downsample_batch, build_log_dir, preprocess, evaluate_model
 from utils import get_data_set
 from BatchThread import ThreadedGenerator
+from tqdm import tqdm
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -130,12 +132,14 @@ def main():
         val_data_set = get_data_set(val_data_path,'val')
         eval_data_set = get_data_set(eval_data_path,'eval')
         
-        
+        epoch = 0
         while True:
 
             #One epoch 
-            for batch_idx in range(0, len(train_data_set) - args.batch_size + 1, args.batch_size):
-                
+            for batch_idx in tqdm(range(0, len(train_data_set) - args.batch_size + 1, args.batch_size)):
+                tqdm.write("Iteration %s"%iteration)
+
+
                 if iteration % args.log_freq == 0:
 
                     for batch_idx in range(0, len(val_data_set) - args.batch_size + 1, args.batch_size): 
@@ -171,9 +175,10 @@ def main():
                     sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
                                                   d_x_real: batch_hr})
                 
-                print('__training__ %s' % iteration)
+                #print('__training__ %s' % iteration)
                 iteration += 1
-
+            print('__epoch__: %s' % epoch)
+            epoch += 1
         # Stop queue threads
         # coord.request_stop()
         # coord.join(threads)
