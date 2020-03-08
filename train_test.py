@@ -121,7 +121,7 @@ def main():
             t =trange(0, len(train_data_set) - args.batch_size + 1, args.batch_size, desc='Iterations')
             #One epoch 
             for batch_idx in t:
-                t.set_description("Training... (Iterations: %i)" % iteration)
+                t.set_description("Training... [Iterations: %s]" % iteration)
                 
                 #Each 10000 times evaluate model
                 if iteration % args.log_freq == 0:
