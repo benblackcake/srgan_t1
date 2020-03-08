@@ -87,6 +87,8 @@ def main():
         # Initialize
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
+        iteration = 0
+        epoch = 0
         
         # Load saved weights
         saver = tf.train.Saver()
@@ -113,8 +115,7 @@ def main():
         val_data_set = get_data_set(val_data_path,'val')
         eval_data_set = get_data_set(eval_data_path,'eval')
         
-        iteration = 0
-        epoch = 0
+
         
         while True:
             t =trange(0, len(train_data_set) - args.batch_size + 1, args.batch_size, desc='Iterations')
