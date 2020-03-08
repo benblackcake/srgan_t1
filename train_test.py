@@ -13,7 +13,7 @@ import sys
 from utilities import input_setup, downsample_batch, build_log_dir, preprocess, evaluate_model
 from utils import get_data_set
 from BatchThread import ThreadedGenerator
-from tqdm import tqdm
+from tqdm import tqdm,trange
 
 
 def main():
@@ -117,11 +117,11 @@ def main():
         epoch = 0
         
         while True:
-
+            t =trange((0, len(train_data_set) - args.batch_size + 1, args.batch_size), desc='Iterations')
             #One epoch 
-            for batch_idx in tqdm(range(0, len(train_data_set) - args.batch_size + 1, args.batch_size)):
-                tqdm.write("Iteration %s"%iteration)
-
+            for batch_idx in t:
+                #tqdm.write("Iteration %s"%iteration)
+                t.set_description("Bar desc (file %i)" % iteration)
 
                 if iteration % args.log_freq == 0:
 
