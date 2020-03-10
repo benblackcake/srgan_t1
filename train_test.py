@@ -14,6 +14,7 @@ from utilities import input_setup, downsample_batch, build_log_dir, preprocess, 
 from utils import get_data_set
 from BatchThread import ThreadedGenerator
 from tqdm import tqdm,trange
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -115,7 +116,11 @@ def main():
         
         iteration = 0
         epoch = 0
-        
+
+        val_error_li =[]
+        eval_error_li =[]
+        fig = plt.figure()
+
         while True:
             t =trange((0, len(train_data_set) - args.batch_size + 1, args.batch_size), desc='Iterations')
             #One epoch 
@@ -130,6 +135,10 @@ def main():
                         val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
                         eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
                     # Log error
+                    val_error_li.append(val_error)
+                    eval_error_li.append(eval_error)
+                    fig.savefig('val_error.png')
+
                     print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                     # Evaluate benchmarks
                     log_line = ''
