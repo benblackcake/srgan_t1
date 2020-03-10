@@ -161,6 +161,7 @@ def main():
                 _, err = sess.run([g_train_step,g_loss], feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
 
                 val_error_li.append(err)
+                print(err)
                 # eval_error_li.append(eval_error)
                 plt.plot(val_error)
                 fig.savefig('val_error.png')
