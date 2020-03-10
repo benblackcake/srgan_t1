@@ -134,10 +134,14 @@ def main():
                     # Test every log-freq iterations
                         val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
                         eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
-                    # Log error
+                    val_error_li.append(val_error)
+                    eval_error_li.append(eval_error)
 
-                    # plt.plot(val_error_li)
-                    # plt.savefig('val_error.png')
+                    # Log error
+                    plt.plot(val_error_li)
+                    plt.savefig('val_error.png')
+                    plt.plot(eval_error_li)
+                    plt.savefig('eval_error.png')
                     # fig.savefig()
 
                     print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
@@ -160,10 +164,8 @@ def main():
                 batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
                 _, err = sess.run([g_train_step,g_loss], feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
 
-                val_error_li.append(err)
-                plt.plot(val_error_li)
-                plt.savefig('val_error.png')
-                
+                # val_error_li.append(err)
+
                 #Train discriminator
                 if args.use_gan:
                     batch_hr = train_data_set[batch_idx:batch_idx + 16]
