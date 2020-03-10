@@ -160,7 +160,7 @@ def main():
                 val_error_li.append(err)
                 print(err)
                 # eval_error_li.append(eval_error)
-                plt.plot(val_error)
+                plt.plot(val_error_li)
                 fig.savefig('val_error.png')
 
                 #Train discriminator
