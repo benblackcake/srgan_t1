@@ -115,10 +115,7 @@ def main():
         train_data_set = get_data_set(train_data_path,'train')
         val_data_set = get_data_set(val_data_path,'val')
         eval_data_set = get_data_set(eval_data_path,'eval')
-
-        iteration = 0
-        epoch = 0
-
+        
         val_error_li =[]
         eval_error_li =[]
         fig = plt.figure()
