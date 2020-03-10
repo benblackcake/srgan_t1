@@ -115,7 +115,7 @@ def main():
         train_data_set = get_data_set(train_data_path,'train')
         val_data_set = get_data_set(val_data_path,'val')
         eval_data_set = get_data_set(eval_data_path,'eval')
-        
+
         iteration = 0
         epoch = 0
 
@@ -140,7 +140,7 @@ def main():
                     # Log error
                     val_error_li.append(val_error)
                     eval_error_li.append(eval_error)
-                    fig.savefig('val_error.png')
+                    fig.savefig('val_error.png', val_error)
 
                     print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                     # Evaluate benchmarks
