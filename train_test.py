@@ -140,7 +140,8 @@ def main():
                     # Log error
                     val_error_li.append(val_error)
                     eval_error_li.append(eval_error)
-                    fig.savefig('val_error.png', val_error)
+                    plt.plot(val_error)
+                    fig.savefig('val_error.png')
 
                     print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                     # Evaluate benchmarks
