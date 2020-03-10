@@ -136,6 +136,9 @@ def main():
                         eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
                     # Log error
 
+                    # plt.plot(val_error_li)
+                    # plt.savefig('val_error.png')
+                    # fig.savefig()
 
                     print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
                     # Evaluate benchmarks
@@ -158,11 +161,9 @@ def main():
                 _, err = sess.run([g_train_step,g_loss], feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
 
                 val_error_li.append(err)
-                print(err)
-                # eval_error_li.append(eval_error)
                 plt.plot(val_error_li)
-                fig.savefig('val_error.png')
-
+                plt.savefig('val_error.png')
+                
                 #Train discriminator
                 if args.use_gan:
                     batch_hr = train_data_set[batch_idx:batch_idx + 16]
