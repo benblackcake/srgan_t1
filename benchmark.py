@@ -129,3 +129,18 @@ class Benchmark:
         if log_path:
             self.save_images(pred, log_path, iteration)
         return self.test_images(self.images_hr, pred)
+    
+    
+    def eval(self, sess, g_y_pred, log_path=None, iteration=0):
+        pred = []
+        
+        for i, input in enumerate(self.images_hr):
+            hr = hr/255.0
+            output = sess.run(g_y_pred, feed_dict={'d_training:0': False, 'g_training:0': False,
+                                                   'input_lowres:0': hr[np.newaxis]})
+            pred.append(self.deprocess(np.squeeze(output, axis=0)))
+                # save images
+        if log_path:
+            self.save_images(pred, log_path, iteration)
+        return self.test_images(self.images_hr, pred)
+                                                   
