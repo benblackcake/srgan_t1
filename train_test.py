@@ -39,6 +39,7 @@ def main():
                         help='If set, validates that the benchmarking metrics are correct for the images provided by the authors of the SRGAN paper.')
     parser.add_argument('--gpu', type=str, default='0', help='Which GPU to use')
     parser.add_argument('--epoch', type=int, default='1000000', help='How many iterations ')
+    parser.add_argument('--is-val', action='store_true', help='How many iterations ')
     
 
     args = parser.parse_args()
@@ -119,65 +120,72 @@ def main():
         val_error_li =[]
         eval_error_li =[]
         fig = plt.figure()
+        
+        if args.is_val:
+            for benchmark in benchmarks:
+                psnr, ssim, _, _ = benchmark.evaluate(sess, g_y_pred, log_path, iteration)
+                print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
 
-
-        while True:
-            t =trange(0, len(train_data_set) - args.batch_size + 1, args.batch_size, desc='Iterations')
-            #One epoch 
-            for batch_idx in t:
-                t.set_description("Training... [Iterations: %s]" % iteration)
                 
-                #Each 10000 times evaluate model
-                if iteration % args.log_freq == 0:
-                    #Loop over eval dataset
-                    for batch_idx in range(0, len(val_data_set) - args.batch_size + 1, args.batch_size): 
-                    # Test every log-freq iterations
-                        val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
-                        eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
-                    val_error_li.append(val_error)
-                    eval_error_li.append(eval_error)
-                    print(len(val_error_li))
-                    # Log error
-                    plt.plot(val_error_li)
-                    plt.savefig('val_error.png')
-                    plt.plot(eval_error_li)
-                    plt.savefig('eval_error.png')
-                    # fig.savefig()
+            
+        else:
+            while True:
+                t =trange(0, len(train_data_set) - args.batch_size + 1, args.batch_size, desc='Iterations')
+                #One epoch 
+                for batch_idx in t:
+                    t.set_description("Training... [Iterations: %s]" % iteration)
+                    
+                    #Each 10000 times evaluate model
+                    if iteration % args.log_freq == 0:
+                        #Loop over eval dataset
+                        for batch_idx in range(0, len(val_data_set) - args.batch_size + 1, args.batch_size): 
+                        # Test every log-freq iterations
+                            val_error = evaluate_model(g_loss, val_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
+                            eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
+                        val_error_li.append(val_error)
+                        eval_error_li.append(eval_error)
 
-                    print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
-                    # Evaluate benchmarks
-                    log_line = ''
-                    for benchmark in benchmarks:
-                        psnr, ssim, _, _ = benchmark.evaluate(sess, g_y_pred, log_path, iteration)
-                        print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
-                        log_line += ',%.7f, %.7f' % (psnr, ssim)
-                    print()
-                    # Write to log
-                    with open(log_path + '/loss.csv', 'a') as f:
-                        f.write('%d, %.15f, %.15f%s\n' % (iteration, val_error, eval_error, log_line))
-                    # Save checkpoint
-                    saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
-                
-                # Train generator    
-                batch_hr = train_data_set[batch_idx:batch_idx + 16]
-                batch_lr = downsample_batch(batch_hr, factor=4)
-                batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-                _, err = sess.run([g_train_step,g_loss], feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
+                        # Log error
+                        plt.plot(val_error_li)
+                        plt.savefig('val_error.png')
+                        plt.plot(eval_error_li)
+                        plt.savefig('eval_error.png')
+                        # fig.savefig()
 
-                # val_error_li.append(err)
-
-                #Train discriminator
-                if args.use_gan:
+                        print('[%d] Test: %.7f, Train: %.7f' % (iteration, val_error, eval_error), end='')
+                        # Evaluate benchmarks
+                        log_line = ''
+                        for benchmark in benchmarks:
+                            psnr, ssim, _, _ = benchmark.evaluate(sess, g_y_pred, log_path, iteration)
+                            print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
+                            log_line += ',%.7f, %.7f' % (psnr, ssim)
+                        print()
+                        # Write to log
+                        with open(log_path + '/loss.csv', 'a') as f:
+                            f.write('%d, %.15f, %.15f%s\n' % (iteration, val_error, eval_error, log_line))
+                        # Save checkpoint
+                        saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=False)
+                    
+                    # Train generator    
                     batch_hr = train_data_set[batch_idx:batch_idx + 16]
                     batch_lr = downsample_batch(batch_hr, factor=4)
                     batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
-                    sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
-                                                  d_x_real: batch_hr})
-                
-                #print('__training__ %s' % iteration)
-                iteration += 1
-            print('__epoch__: %s' % epoch)
-            epoch += 1
+                    _, err = sess.run([g_train_step,g_loss], feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr})
+
+                    # val_error_li.append(err)
+
+                    #Train discriminator
+                    if args.use_gan:
+                        batch_hr = train_data_set[batch_idx:batch_idx + 16]
+                        batch_lr = downsample_batch(batch_hr, factor=4)
+                        batch_lr, batch_hr = preprocess(batch_lr, batch_hr)
+                        sess.run(d_train_step, feed_dict={d_training: True, g_training: True, g_x: batch_lr, g_y: batch_hr,
+                                                      d_x_real: batch_hr})
+                    
+                    #print('__training__ %s' % iteration)
+                    iteration += 1
+                print('__epoch__: %s' % epoch)
+                epoch += 1
 
 if __name__ == "__main__":
     main()
