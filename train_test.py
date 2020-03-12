@@ -125,6 +125,7 @@ def main():
             for benchmark in benchmarks:
                 psnr, ssim, _, _ = benchmark.eval(sess, g_y_pred, log_path, iteration)
                 print(' [%s] PSNR: %.2f, SSIM: %.4f' % (benchmark.name, psnr, ssim), end='')
+
                 
             
         else:
