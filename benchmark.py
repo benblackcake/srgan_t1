@@ -135,9 +135,9 @@ class Benchmark:
         pred = []
         
         for i, input in enumerate(self.images_hr):
-            hr = hr/255.0
+            input = input/255.0
             output = sess.run(g_y_pred, feed_dict={'d_training:0': False, 'g_training:0': False,
-                                                   'input_lowres:0': hr[np.newaxis]})
+                                                   'input_lowres:0': input[np.newaxis]})
             pred.append(self.deprocess(np.squeeze(output, axis=0)))
                 # save images
         if log_path:
