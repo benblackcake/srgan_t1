@@ -136,7 +136,7 @@ def main():
                         eval_error = evaluate_model(g_loss, eval_data_set[batch_idx:batch_idx + 16], sess, 119, args.batch_size)
                     val_error_li.append(val_error)
                     eval_error_li.append(eval_error)
-
+                    print(len(val_error_li))
                     # Log error
                     plt.plot(val_error_li)
                     plt.savefig('val_error.png')
