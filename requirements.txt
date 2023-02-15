@@ -37,6 +37,6 @@ tensorflow-estimator==1.15.1
 termcolor==1.1.0
 tflearn==0.3.2
 tqdm==4.41.1
-Werkzeug==0.16.0
+Werkzeug==2.2.3
 wincertstore==0.2
 wrapt==1.11.2
